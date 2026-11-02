@@ -2,7 +2,7 @@
 
 Projeto final de engenharia e análise de dados desenvolvido com Python, SQL, DuckDB, testes e Git. O tema do projeto é **Controle de Gastos**: a análise trata o valor pago nos pedidos da Olist como gasto de compra e organiza indicadores para entender evolução, concentração e formas de pagamento.
 
-O aplicativo visual Controle de Gastos foi a inspiração do tema e da linguagem do projeto. Este pipeline é um projeto analítico independente: ele **não acessa o Supabase, não usa os dados pessoais do aplicativo e não contém login ou senha**.
+O aplicativo visual Controle de Gastos foi a inspiração do tema e da linguagem do projeto. Para entrar no aplicativo visual, o usuário utiliza login e senha. Já este repositório é o pipeline analítico da entrega: ele usa a fonte pública Olist para ser reproduzível e **não precisa fazer login no aplicativo, não acessa o Supabase e não usa os dados pessoais salvos no app**.
 
 ## Perguntas do projeto
 
