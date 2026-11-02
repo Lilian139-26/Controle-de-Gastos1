@@ -15,3 +15,16 @@ def test_build_order_spend_aggregates_multiple_payment_rows():
     out = build_order_spend(orders, payments).sort_values("order_id")
     assert out["order_paid_value"].tolist() == [15.0, 20.0]
     assert out["payment_installments"].tolist() == [2, 1]
+
+
+def test_summarize_monthly_spend_identifies_monthly_total():
+    from src.transform import summarize_monthly_spend
+    orders = pd.DataFrame({
+        "order_id": ["a", "b", "c"],
+        "order_month": ["2024-01", "2024-01", "2024-02"],
+        "order_paid_value": [10.0, 20.0, 50.0],
+    })
+    out = summarize_monthly_spend(orders)
+    peak = out.loc[out["total_paid"].idxmax()]
+    assert peak["order_month"] == "2024-02"
+    assert peak["total_paid"] == 50.0

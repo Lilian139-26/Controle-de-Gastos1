@@ -7,8 +7,8 @@ O aplicativo visual Controle de Gastos foi a inspiração do tema e da linguagem
 ## Perguntas do projeto
 
 1. Como o gasto total evolui mês a mês?
-2. Quais estados concentram o maior valor pago?
-3. Qual é o ticket médio por mês e estado?
+2. Qual mês concentra o maior valor pago?
+3. Como o ticket médio varia de um mês para outro?
 4. Quais formas de pagamento concentram os gastos?
 5. Quais clientes possuem maior gasto acumulado e qual é a frequência de pedidos?
 
@@ -35,9 +35,9 @@ As tabelas são ligadas por `order_id` e `customer_id`, permitindo os JOINs usad
 
 ## Indicadores produzidos
 
-- `monthly_spend_by_state.csv`: mês, estado, quantidade de pedidos, clientes ativos, gasto total e ticket médio.
+- `monthly_spend_summary.csv`: mês, quantidade de pedidos, clientes ativos, gasto total e ticket médio; responde diretamente qual mês concentrou o maior gasto.
 - `payment_method_mix.csv`: forma de pagamento, pedidos, gasto total, participação no valor e média de parcelas.
-- `customer_spend_profile.csv`: cliente, estado, quantidade de pedidos, gasto acumulado, ticket médio e período de atividade.
+- `customer_spend_profile.csv`: cliente, estado de entrega, quantidade de pedidos, gasto acumulado, ticket médio e período de atividade.
 
 Cada indicador possui um arquivo `.sql` de origem. O valor de um pedido é calculado pela soma das parcelas em `order_payments`; a quantidade de pedidos usa `COUNT(DISTINCT order_id)` para não contar duas vezes um pedido parcelado.
 

@@ -24,7 +24,7 @@ def run() -> None:
     for sql_file, output in [
         (ROOT / 'sql/refined/order_spend.sql', REFINED / 'order_spend.csv'),
         (ROOT / 'sql/refined/customer_spend.sql', REFINED / 'customer_spend.csv'),
-        (ROOT / 'sql/marts/monthly_spend_by_state.sql', MARTS / 'monthly_spend_by_state.csv'),
+        (ROOT / 'sql/marts/monthly_spend_summary.sql', MARTS / 'monthly_spend_summary.csv'),
         (ROOT / 'sql/marts/payment_method_mix.sql', MARTS / 'payment_method_mix.csv'),
         (ROOT / 'sql/marts/customer_spend_profile.sql', MARTS / 'customer_spend_profile.csv'),
     ]:
