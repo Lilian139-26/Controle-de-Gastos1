@@ -82,6 +82,4 @@ O projeto foi construído em etapas: documentação e estrutura; modelo de dados
 
 ## Onde a IA errou ou assumiu algo
 
-A IA inicialmente desviou o projeto para uma análise de clientes, estados, pedidos e pagamentos da Olist. Isso não representava o Controle de Gastos, que é uma ferramenta de finanças pessoais e não possui clientes. A revisão removeu esse vocabulário e reorganizou o pipeline para trabalhar com ganhos, despesas, categorias, meses e saldo.
-
-A conferência também verificou que os dados de demonstração não são dados da usuária. O projeto público não recebe os valores salvos no aplicativo nem depende de uma conta do Supabase para executar os testes.
+Durante a revisão, foi identificada uma ambiguidade no indicador de média mensal de ganhos: a média poderia ser calculada apenas sobre os meses preenchidos ou sobre os 12 meses do ano. Para manter o conceito de planejamento anual do Controle de Gastos, a regra adotada foi `total anual de ganhos / 12`. Essa decisão foi conferida com um exemplo de dois meses preenchidos: `R$ 40.000,00 / 12 = R$ 3.333,33`.
