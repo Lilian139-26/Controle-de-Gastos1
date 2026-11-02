@@ -78,8 +78,8 @@ O dashboard lê somente `data/marts/`. O cálculo acontece antes, no pipeline e 
 
 ## Histórico de construção
 
-O projeto foi construído em etapas: documentação e estrutura; modelo de dados de demonstração; transformação e JOIN; indicadores mensais; testes; dashboard; revisão do escopo para alinhamento ao controle financeiro pessoal; e revisão final. O histórico de commits mostra a evolução dessas etapas.
+O projeto foi construído em etapas: documentação e estrutura; modelo de dados de demonstração; transformação e JOIN; indicadores mensais; testes; painel; revisão do escopo para alinhamento ao controle financeiro pessoal; e revisão final. O histórico de commits mostra a evolução dessas etapas.
 
-## Onde a IA errou ou assumiu algo
+## Onde a IA errou ou fez alguma suposição
 
 Durante a revisão, foi identificada uma ambiguidade no indicador de média mensal de ganhos: a média poderia ser calculada apenas sobre os meses preenchidos ou sobre os 12 meses do ano. Para manter o conceito de planejamento anual do Controle de Gastos, a regra adotada foi `total anual de ganhos / 12`. Essa decisão foi conferida com um exemplo de dois meses preenchidos: `R$ 40.000,00 / 12 = R$ 3.333,33`.
