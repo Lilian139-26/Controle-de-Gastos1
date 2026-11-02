@@ -27,7 +27,7 @@ Não há clientes, pedidos ou vendas neste projeto. O foco é exclusivamente o c
 - **Categorias:** agrupamentos usados para comparar o peso de cada tipo de gasto.
 - **Saldo mensal:** ganhos do mês menos despesas do mês.
 
-## Camadas do pipeline
+## Camadas do fluxo de dados (pipeline)
 
 1. **Raw** (`data/raw/`): dados de demonstração no formato tabular, preservados como entrada.
 2. **Refined** (`data/refined/`): dados tipados, normalizados e ligados à tabela de categorias por `category_id`.
