@@ -78,7 +78,7 @@ O dashboard lê somente `data/marts/`. O cálculo acontece antes, no pipeline e 
 
 ## Histórico de construção
 
-O projeto foi construído em etapas: documentação e estrutura; modelo de dados de demonstração; transformação e JOIN; indicadores mensais; testes; dashboard e revisão final. O histórico de commits mostra a evolução dessas etapas.
+O projeto foi construído em etapas: documentação e estrutura; modelo de dados de demonstração; transformação e JOIN; indicadores mensais; testes; dashboard; revisão do escopo para alinhamento ao controle financeiro pessoal; e revisão final. O histórico de commits mostra a evolução dessas etapas.
 
 ## Onde a IA errou ou assumiu algo
 
