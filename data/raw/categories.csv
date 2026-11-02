@@ -1,0 +1,6 @@
+category_id,category_name,category_group
+CAT-FIXA,Aluguel,Contas fixas
+CAT-CASA,Internet,Casa
+CAT-LAZER,Lazer,Contas adicionais
+CAT-TRANSP,Transporte,Contas adicionais
+CAT-GANHO,Renda,Ganho

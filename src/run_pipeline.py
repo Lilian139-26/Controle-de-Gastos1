@@ -7,36 +7,31 @@ REFINED = ROOT / "data" / "refined"
 MARTS = ROOT / "data" / "marts"
 
 
-def csv(name: str) -> str:
-    return str(RAW / name)
-
-
 def run() -> None:
     REFINED.mkdir(parents=True, exist_ok=True)
     MARTS.mkdir(parents=True, exist_ok=True)
     con = duckdb.connect()
-    con.execute(f"CREATE OR REPLACE VIEW orders_raw AS SELECT * FROM read_csv_auto('{csv('olist_orders_dataset.csv')}', header=true)")
-    con.execute(f"CREATE OR REPLACE VIEW payments_raw AS SELECT * FROM read_csv_auto('{csv('olist_order_payments_dataset.csv')}', header=true)")
-    con.execute(f"CREATE OR REPLACE VIEW customers_raw AS SELECT * FROM read_csv_auto('{csv('olist_customers_dataset.csv')}', header=true)")
-    con.execute("CREATE OR REPLACE TABLE refined_orders AS SELECT * FROM orders_raw")
-    con.execute("CREATE OR REPLACE TABLE refined_payments AS SELECT * FROM payments_raw")
-    con.execute("CREATE OR REPLACE TABLE refined_customers AS SELECT * FROM customers_raw")
-    for sql_file, output in [
-        (ROOT / 'sql/refined/order_spend.sql', REFINED / 'order_spend.csv'),
-        (ROOT / 'sql/refined/customer_spend.sql', REFINED / 'customer_spend.csv'),
-        (ROOT / 'sql/marts/monthly_spend_summary.sql', MARTS / 'monthly_spend_summary.csv'),
-        (ROOT / 'sql/marts/payment_method_mix.sql', MARTS / 'payment_method_mix.csv'),
-        (ROOT / 'sql/marts/customer_spend_profile.sql', MARTS / 'customer_spend_profile.csv'),
-    ]:
-        query = sql_file.read_text()
-        target = str(output).replace("'", "''")
-        if 'marts/' in str(output):
-            input_refined = str(REFINED / 'customer_spend.csv').replace("'", "''")
-            query = query.replace("read_csv_auto('__OUTPUT__')", f"read_csv_auto('{input_refined}')")
-        con.execute(query.replace("__OUTPUT__", target))
+    transactions_path = str(RAW / "transactions.csv").replace("'", "''")
+    categories_path = str(RAW / "categories.csv").replace("'", "''")
+    con.execute(f"CREATE OR REPLACE VIEW transactions_raw AS SELECT * FROM read_csv_auto('{transactions_path}')")
+    con.execute(f"CREATE OR REPLACE VIEW categories_raw AS SELECT * FROM read_csv_auto('{categories_path}')")
+    refined = REFINED / "transactions_refined.csv"
+    refined_sql = (ROOT / "sql/refined/transactions_refined.sql").read_text()
+    con.execute(refined_sql.replace("__OUTPUT__", str(refined).replace("'", "''")))
+    marts = [
+        ("monthly_personal_spending.sql", "monthly_personal_spending.csv"),
+        ("category_spend_summary.sql", "category_spend_summary.csv"),
+        ("recurring_expense_summary.sql", "recurring_expense_summary.csv"),
+    ]
+    for sql_name, output_name in marts:
+        sql = (ROOT / "sql/marts" / sql_name).read_text()
+        output = MARTS / output_name
+        query = sql.replace("__OUTPUT__", str(refined).replace("'", "''"))
+        query = query.replace(f"TO '{str(refined).replace(chr(39), chr(39)+chr(39))}'", f"TO '{str(output).replace(chr(39), chr(39)+chr(39))}'")
+        con.execute(query)
         print(f"gerado: {output.relative_to(ROOT)}")
     con.close()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run()

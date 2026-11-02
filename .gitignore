@@ -2,7 +2,10 @@
 __pycache__/
 .pytest_cache/
 *.pyc
-data/raw/*.csv
-data/raw/*.zip
+# Saídas geradas pelo pipeline
 data/refined/*.csv
 data/marts/*.csv
+# A entrada fictícia de demonstração pode ser versionada
+data/raw/*.csv
+!data/raw/transactions.csv
+!data/raw/categories.csv

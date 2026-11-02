@@ -1,77 +1,87 @@
-# Controle de Gastos com dados da Olist
+# Controle de Gastos — documentação e pipeline do projeto
 
-Projeto final de engenharia e análise de dados desenvolvido com Python, SQL, DuckDB, testes e Git. O tema do projeto é **Controle de Gastos**: a análise trata o valor pago nos pedidos da Olist como gasto de compra e organiza indicadores para entender evolução, concentração e formas de pagamento.
+## Sobre o projeto
 
-O aplicativo visual Controle de Gastos foi a inspiração do tema e da linguagem do projeto. Para entrar no aplicativo visual, o usuário utiliza login e senha. Já este repositório é o pipeline analítico da entrega: ele usa a fonte pública Olist para ser reproduzível e **não precisa fazer login no aplicativo, não acessa o Supabase e não usa os dados pessoais salvos no app**.
+O **Controle de Gastos** é um dashboard/planilha para controle financeiro pessoal. A pessoa usuária registra ganhos e despesas, organiza despesas por grupos e acompanha a evolução mensal, o saldo e o impacto de cada compromisso no orçamento.
 
-## Perguntas do projeto
+Este repositório documenta como o projeto foi estruturado e contém um pequeno pipeline analítico reproduzível com dados de demonstração. O pipeline usa o mesmo modelo conceitual do aplicativo: **ganhos, despesas, categorias, meses e saldo**. Nenhum dado pessoal real é versionado aqui.
 
-1. Como o gasto total evolui mês a mês?
-2. Qual mês concentra o maior valor pago?
-3. Como o ticket médio varia de um mês para outro?
-4. Quais formas de pagamento concentram os gastos?
-5. Quais clientes possuem maior gasto acumulado e qual é a frequência de pedidos?
+O aplicativo publicado possui autenticação para proteger os dados de cada usuário. O repositório público contém apenas código, documentação, testes e dados fictícios de exemplo; não contém login, senha, token privado ou dados do Supabase.
 
-Essas perguntas usam a Olist de uma maneira orientada a controle de gastos, em vez de copiar um painel genérico de vendas.
+## Perguntas que o projeto responde
 
-## Fonte e licença
+- Como o total de despesas evolui mês a mês?
+- Qual mês concentra o maior gasto?
+- Quanto entrou, quanto saiu e qual foi o saldo em cada mês?
+- Qual grupo de despesa representa a maior parte do orçamento?
+- Quais despesas recorrentes têm maior impacto no total anual?
 
-Fonte: [Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce), baixado pela API pública do Kaggle. O dataset é distribuído sob licença **CC BY-NC-SA 4.0** na página da fonte. Este repositório é público para fins educacionais e mantém a atribuição à fonte. O download é reproduzível pelo script `scripts/download_data.py`.
+Não há clientes, pedidos ou vendas neste projeto. O foco é exclusivamente o controle financeiro pessoal.
 
-## O que é uma linha de cada tabela
+## Modelo de dados do aplicativo
 
-- `olist_orders_dataset.csv`: uma linha por pedido.
-- `olist_order_payments_dataset.csv`: uma linha por parcela ou método de pagamento de um pedido.
-- `olist_customers_dataset.csv`: uma linha por cliente e endereço de entrega.
-- `olist_order_items_dataset.csv`: uma linha por item de um pedido.
-
-As tabelas são ligadas por `order_id` e `customer_id`, permitindo os JOINs usados nas camadas refinadas e nos indicadores.
+- **Ganhos:** valores recebidos por mês, com descrição opcional.
+- **Cartões:** despesas lançadas por mês em cada cartão.
+- **Contas fixas:** compromissos recorrentes, como aluguel, internet e energia.
+- **Contas adicionais:** despesas variáveis, como lazer e transporte.
+- **Categorias:** agrupamentos usados para comparar o peso de cada tipo de gasto.
+- **Saldo mensal:** ganhos do mês menos despesas do mês.
 
 ## Camadas do pipeline
 
-1. **Raw** (`data/raw/`): arquivos originais baixados da fonte, sem alteração.
-2. **Refined** (`data/refined/`): pedidos e pagamentos tipados, datas convertidas, pagamentos agregados por pedido e pedidos ligados aos clientes.
-3. **Marts** (`data/marts/`): tabelas finais de indicadores de controle de gastos, cada uma produzida por um SQL correspondente em `sql/marts/`.
+1. **Raw** (`data/raw/`): dados de demonstração no formato tabular, preservados como entrada.
+2. **Refined** (`data/refined/`): dados tipados, normalizados e ligados à tabela de categorias por `category_id`.
+3. **Marts** (`data/marts/`): indicadores prontos para consulta pelo dashboard, sem cálculos de negócio na tela.
 
-## Indicadores produzidos
+O pipeline contém duas tabelas de entrada ligadas por chave: `transactions.csv` e `categories.csv`. Isso permite demonstrar um JOIN sem expor qualquer dado pessoal.
 
-- `monthly_spend_summary.csv`: mês, quantidade de pedidos, clientes ativos, gasto total e ticket médio; responde diretamente qual mês concentrou o maior gasto.
-- `payment_method_mix.csv`: forma de pagamento, pedidos, gasto total, participação no valor e média de parcelas.
-- `customer_spend_profile.csv`: cliente, estado de entrega, quantidade de pedidos, gasto acumulado, ticket médio e período de atividade.
+## Indicadores
 
-Cada indicador possui um arquivo `.sql` de origem. O valor de um pedido é calculado pela soma das parcelas em `order_payments`; a quantidade de pedidos usa `COUNT(DISTINCT order_id)` para não contar duas vezes um pedido parcelado.
+- `monthly_personal_spending.csv`: despesas, ganhos, saldo e quantidade de lançamentos por mês.
+- `category_spend_summary.csv`: total anual, quantidade de lançamentos e participação de cada grupo.
+- `recurring_expense_summary.csv`: despesas recorrentes e seu impacto acumulado.
 
-## Como rodar do zero
+Cada indicador possui um arquivo `.sql` correspondente em `sql/marts/`.
+
+## Como executar
 
 Requisitos: Python 3.10+.
 
 ```bash
 python -m venv .venv
-# Linux/macOS
-source .venv/bin/activate
+# Linux/macOS: source .venv/bin/activate
 # Windows PowerShell: .venv\\Scripts\\Activate.ps1
 pip install -r requirements.txt
-python scripts/download_data.py
 python -m src.run_pipeline
 pytest -q
 ```
 
-O pipeline baixa a fonte para `data/raw`, executa as transformações e SQLs com DuckDB e grava os resultados em `data/refined` e `data/marts`. Os CSVs de dados não são versionados no Git; qualquer pessoa consegue recriá-los seguindo os comandos acima.
-
-Opcionalmente, para abrir o dashboard:
+Para abrir o dashboard opcional:
 
 ```bash
 streamlit run dashboard/app.py
 ```
 
-O dashboard opcional lê somente os arquivos da camada `data/marts`; não faz cálculos de negócio na tela.
+O dashboard lê somente `data/marts/`. O cálculo acontece antes, no pipeline e nos SQLs.
 
-## Histórico de commits
+## Boas práticas utilizadas
 
-O projeto foi construído em etapas, com commits separados: documentação e estrutura; download da fonte e camada raw; transformações da camada refined; indicadores marts; testes; dashboard e revisão final. O histórico mostra a ordem em que cada parte foi construída.
+- separação entre entrada, transformação e indicadores;
+- nenhum dado pessoal ou segredo no Git;
+- nomes de campos padronizados;
+- valores monetários tratados como números;
+- SQL separado por indicador;
+- testes unitários com dados inventados, sem abrir o banco do projeto;
+- histórico de commits por etapa;
+- workflow do GitHub Actions executando os testes;
+- autenticação mantida no aplicativo, fora deste repositório analítico.
+
+## Histórico de construção
+
+O projeto foi construído em etapas: documentação e estrutura; modelo de dados de demonstração; transformação e JOIN; indicadores mensais; testes; dashboard e revisão final. O histórico de commits mostra a evolução dessas etapas.
 
 ## Onde a IA errou ou assumiu algo
 
-A IA inicialmente confundiu o aplicativo visual Controle de Gastos com a fonte de dados do pipeline e criou uma integração desnecessária com o formato interno do app. Isso não era o objetivo do trabalho. A correção foi remover essa integração e deixar claro que a **Olist é a fonte real**, enquanto Controle de Gastos é o tema usado para formular as perguntas e os indicadores.
+A IA inicialmente desviou o projeto para uma análise de clientes, estados, pedidos e pagamentos da Olist. Isso não representava o Controle de Gastos, que é uma ferramenta de finanças pessoais e não possui clientes. A revisão removeu esse vocabulário e reorganizou o pipeline para trabalhar com ganhos, despesas, categorias, meses e saldo.
 
-Na validação dos dados, foi conferido que `order_payments` possui várias linhas para o mesmo pedido. Por isso, o pipeline soma as parcelas para obter o gasto do pedido e usa contagens distintas de pedidos. Os testes unitários usam dados inventados e rodam sem abrir o banco do projeto, como exigido.
+A conferência também verificou que os dados de demonstração não são dados da usuária. O projeto público não recebe os valores salvos no aplicativo nem depende de uma conta do Supabase para executar os testes.

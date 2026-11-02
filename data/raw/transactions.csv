@@ -1,0 +1,13 @@
+transaction_id,month,category_id,expense_type,description,amount,is_recurring
+1,2026-01,CAT-FIXA,expense,Aluguel,1200.00,true
+2,2026-01,CAT-CASA,expense,Internet,99.90,true
+3,2026-01,CAT-LAZER,expense,Lazer,180.00,false
+4,2026-01,CAT-GANHO,income,Renda,4500.00,false
+5,2026-02,CAT-FIXA,expense,Aluguel,1200.00,true
+6,2026-02,CAT-CASA,expense,Internet,99.90,true
+7,2026-02,CAT-TRANSP,expense,Transporte,175.00,false
+8,2026-02,CAT-GANHO,income,Renda,4500.00,false
+9,2026-03,CAT-FIXA,expense,Aluguel,1200.00,true
+10,2026-03,CAT-CASA,expense,Internet,99.90,true
+11,2026-03,CAT-LAZER,expense,Lazer,220.00,false
+12,2026-03,CAT-GANHO,income,Renda,4700.00,false

@@ -1,29 +1,19 @@
 import pandas as pd
 
 
-def normalize_orders(orders: pd.DataFrame) -> pd.DataFrame:
-    out = orders.copy()
-    out["order_purchase_timestamp"] = pd.to_datetime(out["order_purchase_timestamp"], errors="coerce")
-    out["order_month"] = out["order_purchase_timestamp"].dt.to_period("M").astype("string")
+def normalize_transactions(transactions: pd.DataFrame) -> pd.DataFrame:
+    out = transactions.copy()
+    out["month"] = pd.to_datetime(out["month"], format="%Y-%m").dt.to_period("M").astype("string")
+    out["amount"] = pd.to_numeric(out["amount"], errors="raise")
+    out["is_recurring"] = out["is_recurring"].astype(str).str.lower().eq("true")
     return out
 
 
-def build_order_spend(orders: pd.DataFrame, payments: pd.DataFrame) -> pd.DataFrame:
-    p = payments.groupby("order_id", as_index=False).agg(
-        order_paid_value=("payment_value", "sum"),
-        payment_installments=("payment_installments", "max"),
-    )
-    out = normalize_orders(orders).merge(p, on="order_id", how="left")
-    out["order_paid_value"] = out["order_paid_value"].fillna(0.0)
-    out["payment_installments"] = out["payment_installments"].fillna(0).astype(int)
-    return out
-
-def summarize_monthly_spend(order_spend: pd.DataFrame) -> pd.DataFrame:
-    """Agrega gastos por mês para responder qual mês concentrou mais valor."""
-    out = order_spend.groupby("order_month", as_index=False).agg(
-        orders=("order_id", "nunique"),
-        total_paid=("order_paid_value", "sum"),
-    )
-    out["avg_ticket"] = out["total_paid"] / out["orders"]
-    return out.sort_values("order_month").reset_index(drop=True)
-
+def monthly_personal_summary(transactions: pd.DataFrame) -> pd.DataFrame:
+    out = normalize_transactions(transactions)
+    expenses = out.loc[out["expense_type"].eq("expense")].groupby("month")["amount"].sum()
+    income = out.loc[out["expense_type"].eq("income")].groupby("month")["amount"].sum()
+    count = out.groupby("month").size().rename("launches")
+    result = pd.concat([expenses.rename("expenses"), income.rename("income"), count], axis=1).fillna(0).reset_index()
+    result["balance"] = result["income"] - result["expenses"]
+    return result.sort_values("month").reset_index(drop=True)

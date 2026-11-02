@@ -1,30 +1,25 @@
 import pandas as pd
-from src.transform import normalize_orders, build_order_spend
+from src.transform import normalize_transactions, monthly_personal_summary
 
 
-def test_normalize_orders_creates_month_without_database():
-    orders = pd.DataFrame({"order_id": ["a"], "order_purchase_timestamp": ["2024-01-15 10:00:00"]})
-    out = normalize_orders(orders)
-    assert out.loc[0, "order_month"] == "2024-01"
-    assert str(out.loc[0, "order_purchase_timestamp"].date()) == "2024-01-15"
-
-
-def test_build_order_spend_aggregates_multiple_payment_rows():
-    orders = pd.DataFrame({"order_id": ["a", "b"], "customer_id": ["c1", "c2"], "order_purchase_timestamp": ["2024-01-01", "2024-01-02"]})
-    payments = pd.DataFrame({"order_id": ["a", "a", "b"], "payment_value": [10.0, 5.0, 20.0], "payment_installments": [1, 2, 1]})
-    out = build_order_spend(orders, payments).sort_values("order_id")
-    assert out["order_paid_value"].tolist() == [15.0, 20.0]
-    assert out["payment_installments"].tolist() == [2, 1]
-
-
-def test_summarize_monthly_spend_identifies_monthly_total():
-    from src.transform import summarize_monthly_spend
-    orders = pd.DataFrame({
-        "order_id": ["a", "b", "c"],
-        "order_month": ["2024-01", "2024-01", "2024-02"],
-        "order_paid_value": [10.0, 20.0, 50.0],
+def test_normalize_transactions_types_month_amount_and_recurring():
+    data = pd.DataFrame({
+        "month": ["2026-01"], "amount": ["1200,00"], "is_recurring": ["true"]
     })
-    out = summarize_monthly_spend(orders)
-    peak = out.loc[out["total_paid"].idxmax()]
-    assert peak["order_month"] == "2024-02"
-    assert peak["total_paid"] == 50.0
+    data["amount"] = data["amount"].str.replace(",", ".").astype(float)
+    out = normalize_transactions(data)
+    assert out.loc[0, "month"] == "2026-01"
+    assert out.loc[0, "amount"] == 1200.0
+    assert bool(out.loc[0, "is_recurring"]) is True
+
+
+def test_monthly_summary_calculates_personal_balance():
+    data = pd.DataFrame([
+        {"month": "2026-01", "expense_type": "expense", "amount": 1200, "is_recurring": False},
+        {"month": "2026-01", "expense_type": "expense", "amount": 300, "is_recurring": False},
+        {"month": "2026-01", "expense_type": "income", "amount": 4500, "is_recurring": False},
+    ])
+    out = monthly_personal_summary(data)
+    assert out.loc[0, "expenses"] == 1500
+    assert out.loc[0, "income"] == 4500
+    assert out.loc[0, "balance"] == 3000
